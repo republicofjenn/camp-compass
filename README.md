@@ -40,3 +40,12 @@ There's no single API covering SF camp inventory and availability, so the seed d
 ## Getting started
 
 Setup instructions will be added once the initial app scaffold is in place.
+
+## Local development
+
+```bash
+npm install
+npm run dev
+```
+
+Then open [http://localhost:3000](http://localhost:3000).
