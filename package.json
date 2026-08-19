@@ -11,7 +11,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:policies": "node scripts/apply-rls.mjs",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "db:geocode": "tsx scripts/geocode-camps.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2",

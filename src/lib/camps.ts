@@ -1,12 +1,16 @@
 import { and, asc, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { camps, campInterests, interests, sessions } from "@/db/schema";
+import { SF_NEIGHBORHOODS } from "@/data/sf-neighborhoods";
+import { distanceMiles } from "@/lib/geo";
 
 export type CampFilters = {
   q?: string;
   interest?: string;
   format?: "in_person" | "remote" | "both";
   age?: number;
+  near?: string; // a key in SF_NEIGHBORHOODS
+  radiusMiles?: number;
 };
 
 export async function getInterestOptions() {
@@ -62,11 +66,32 @@ export async function getCamps(filters: CampFilters) {
 
   const tagsByCamp = await tagsByCampId(rows.map((r) => r.camp.id));
 
-  return rows.map((r) => ({
+  let results = rows.map((r) => ({
     ...r.camp,
     session: r.session,
     interestTags: tagsByCamp.get(r.camp.id) ?? [],
+    distanceMiles: null as number | null,
   }));
+
+  const origin = filters.near ? SF_NEIGHBORHOODS[filters.near] : undefined;
+  if (origin) {
+    results = results
+      .map((camp) => ({
+        ...camp,
+        distanceMiles:
+          camp.lat !== null && camp.lng !== null
+            ? distanceMiles(origin, { lat: camp.lat, lng: camp.lng })
+            : null,
+      }))
+      .filter((camp) => {
+        if (camp.distanceMiles === null) return false; // can't confirm in range -- exclude rather than guess
+        if (filters.radiusMiles !== undefined) return camp.distanceMiles <= filters.radiusMiles;
+        return true;
+      })
+      .sort((a, b) => (a.distanceMiles ?? Infinity) - (b.distanceMiles ?? Infinity));
+  }
+
+  return results;
 }
 
 export async function getCampById(id: string) {

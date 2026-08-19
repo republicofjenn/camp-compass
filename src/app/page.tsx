@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { getCamps, getInterestOptions, type CampFilters } from "@/lib/camps";
+import { SF_NEIGHBORHOODS } from "@/data/sf-neighborhoods";
+
+const RADIUS_OPTIONS = [1, 2, 3, 5, 10, 25];
+const NEIGHBORHOOD_NAMES = Object.keys(SF_NEIGHBORHOODS).sort((a, b) => a.localeCompare(b));
 
 function formatLabel(format: string) {
   if (format === "in_person") return "In Person";
@@ -28,8 +32,14 @@ export default async function Home(props: PageProps<"/">) {
     typeof sp.age === "string" && sp.age.trim() !== "" && !Number.isNaN(Number(sp.age))
       ? Number(sp.age)
       : undefined;
+  const near =
+    typeof sp.near === "string" && sp.near in SF_NEIGHBORHOODS ? sp.near : undefined;
+  const radiusMiles =
+    typeof sp.radius === "string" && !Number.isNaN(Number(sp.radius))
+      ? Number(sp.radius)
+      : undefined;
 
-  const filters: CampFilters = { q, interest, format, age };
+  const filters: CampFilters = { q, interest, format, age, near, radiusMiles };
   const [camps, interestOptions] = await Promise.all([getCamps(filters), getInterestOptions()]);
 
   const grouped = new Map<string, typeof interestOptions>();
@@ -40,7 +50,7 @@ export default async function Home(props: PageProps<"/">) {
     grouped.set(key, list);
   }
 
-  const hasFilters = Boolean(q || interest || format || age !== undefined);
+  const hasFilters = Boolean(q || interest || format || age !== undefined || near);
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
@@ -128,6 +138,44 @@ export default async function Home(props: PageProps<"/">) {
             </select>
           </div>
 
+          <div className="flex flex-col gap-1">
+            <label htmlFor="near" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+              Near
+            </label>
+            <select
+              id="near"
+              name="near"
+              defaultValue={near ?? ""}
+              className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
+            >
+              <option value="">Anywhere in SF</option>
+              {NEIGHBORHOOD_NAMES.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="radius" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+              Within
+            </label>
+            <select
+              id="radius"
+              name="radius"
+              defaultValue={radiusMiles ?? 5}
+              disabled={!near}
+              className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] disabled:opacity-40 dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
+            >
+              {RADIUS_OPTIONS.map((r) => (
+                <option key={r} value={r}>
+                  {r} miles
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex items-end gap-3 sm:col-span-2 lg:col-span-4">
             <button
               type="submit"
@@ -174,6 +222,12 @@ export default async function Home(props: PageProps<"/">) {
                   <span>{ageLabel(camp.ageMin, camp.ageMax)}</span>
                   <span>&middot;</span>
                   <span>{formatLabel(camp.format)}</span>
+                  {camp.distanceMiles !== null && (
+                    <>
+                      <span>&middot;</span>
+                      <span>{camp.distanceMiles.toFixed(1)} mi away</span>
+                    </>
+                  )}
                 </div>
 
                 {camp.description && (
