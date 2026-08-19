@@ -24,6 +24,18 @@ SQL, since Drizzle Kit manages tables/columns but not RLS.
    npm run db:studio
    ```
 
+## Connection mode
+
+Currently using Supabase's **session pooler** (`aws-0-us-west-1.pooler.supabase.com:5432`)
+in `.env.local`, not the direct connection -- the direct host
+(`db.<ref>.supabase.co`) is IPv6-only and wasn't reachable from local dev.
+
+**When deploying to Vercel (or any serverless host): switch to the
+transaction pooler instead** (same host, port 6543). Serverless functions open
+many short-lived connections, which the transaction pooler is built for;
+session pooler doesn't scale the same way there. Session pooler is fine for
+local dev and for anything long-running (scripts, a persistent server).
+
 ## Changing the schema later
 
 Edit `schema.ts`, then either `npm run db:push` (POC-friendly, applies
