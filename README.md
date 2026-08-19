@@ -23,6 +23,8 @@ The POC is a responsive web app, installable as a PWA. This keeps iteration fast
 
 ## Roadmap
 
+**Future work — registration platform APIs.** Research on whether ACTIVE Network / CampMinder / UltraCamp / Sawyer APIs could replace manual availability tracking as we scale past SF: see [docs/registration-platform-apis.md](docs/registration-platform-apis.md).
+
 **Phase 0 — Data seeding.** Curate an initial SF Bay Area camp dataset (interests, location, price, dates, drop-off/pickup, pack list) by scraping camp websites and loading it into the database. Initial seed pulled from [Sherri Howe's community-curated SF Summer Camp List](https://tinyurl.com/SFSummerCampsbySherri) (see `data/README.md` for attribution/permission notes). Eventually add a community submission flow so parents/camps can add or update listings over time, rather than relying solely on scraping.
 
 **Phase 1 — Core app.** Parent/kid profiles, search and filter by interest + radius + budget, camp detail pages with map, favoriting.
