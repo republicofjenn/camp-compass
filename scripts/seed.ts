@@ -18,7 +18,6 @@ import { dirname, join } from "path";
 import { config } from "dotenv";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { eq } from "drizzle-orm";
 import * as schema from "../src/db/schema";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
