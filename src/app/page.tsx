@@ -54,15 +54,6 @@ export default async function Home(props: PageProps<"/">) {
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
-      <header className="border-b border-black/[.08] bg-white px-6 py-5 dark:border-white/[.1] dark:bg-black sm:px-10">
-        <h1 className="text-2xl font-semibold tracking-tight text-black dark:text-zinc-50">
-          Camp Compass
-        </h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Find SF Bay Area summer camps that match your kid&apos;s interests, age, and budget.
-        </p>
-      </header>
-
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-8 sm:px-10">
         <form
           method="get"

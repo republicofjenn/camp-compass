@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCampById } from "@/lib/camps";
+import { getCurrentGuardian, getGuardianKids } from "@/lib/auth";
+import { getFavoritedKidIdsForSession } from "@/lib/favorites";
+import { toggleFavorite } from "@/app/actions/favorites";
 
 function formatLabel(format: string) {
   if (format === "in_person") return "In Person";
@@ -36,6 +39,17 @@ export default async function CampDetailPage(props: PageProps<"/camps/[id]">) {
   const { id } = await props.params;
   const camp = await getCampById(id);
   if (!camp) notFound();
+
+  const guardian = await getCurrentGuardian();
+  const guardianKidsList = guardian ? await getGuardianKids(guardian.id) : [];
+  const favoritedBySession = new Map<string, Set<string>>();
+  if (guardian) {
+    await Promise.all(
+      camp.sessions.map(async (session) => {
+        favoritedBySession.set(session.id, await getFavoritedKidIdsForSession(guardian.id, session.id));
+      }),
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
@@ -113,6 +127,45 @@ export default async function CampDetailPage(props: PageProps<"/camps/[id]">) {
                       {session.level ? ` · ${session.level}` : ""}
                     </p>
                   )}
+
+                  <div className="mt-3 flex flex-wrap gap-2 border-t border-black/[.06] pt-3 dark:border-white/[.08]">
+                    {!guardian ? (
+                      <Link
+                        href="/login"
+                        className="text-sm text-zinc-600 underline underline-offset-2 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+                      >
+                        Sign in to favorite this for your kid
+                      </Link>
+                    ) : guardianKidsList.length === 0 ? (
+                      <Link
+                        href="/kids"
+                        className="text-sm text-zinc-600 underline underline-offset-2 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+                      >
+                        Add a kid to start favoriting
+                      </Link>
+                    ) : (
+                      guardianKidsList.map((kid) => {
+                        const isFavorited = favoritedBySession.get(session.id)?.has(kid.id) ?? false;
+                        return (
+                          <form key={kid.id} action={toggleFavorite}>
+                            <input type="hidden" name="kidId" value={kid.id} />
+                            <input type="hidden" name="sessionId" value={session.id} />
+                            <input type="hidden" name="campId" value={camp.id} />
+                            <button
+                              type="submit"
+                              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                                isFavorited
+                                  ? "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200"
+                                  : "bg-black/[.06] text-zinc-700 hover:bg-black/[.1] dark:bg-white/[.08] dark:text-zinc-300 dark:hover:bg-white/[.14]"
+                              }`}
+                            >
+                              {isFavorited ? "★" : "☆"} {kid.name}
+                            </button>
+                          </form>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
               );
             })

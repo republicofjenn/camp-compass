@@ -10,11 +10,13 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:policies": "node scripts/apply-rls.mjs",
+    "db:sql": "node scripts/apply-sql.mjs",
     "db:seed": "tsx scripts/seed.ts",
     "db:geocode": "tsx scripts/geocode-camps.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.3",
     "drizzle-orm": "^0.45.2",
     "next": "16.3.1",
     "postgres": "^3.4.9",
