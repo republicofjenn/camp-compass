@@ -89,16 +89,13 @@ export default async function Home(props: PageProps<"/">) {
             Summer camp shouldn&apos;t feel like the Hunger Games
           </p>
           <h1 className="mb-3 max-w-2xl text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Find the right camp, fast &mdash; no 47-tab spreadsheet required.
+            Find the right camp for your kid, fast.
           </h1>
           <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
-            Camp Compass matches your kid&apos;s interests, age, and your budget and radius to real SF camps &mdash;
-            no account required just to look. When you&apos;re ready, coordinate pickup crews and see which camps
-            your kid&apos;s friends are attending, entirely on your terms.{" "}
-            <strong className="text-foreground">
-              We never share your home address, budget, or your kid&apos;s info with anyone you haven&apos;t
-              explicitly authorized.
-            </strong>
+            Browse real SF summer camps that fit your kid&apos;s interests, age, and your budget &mdash; no account
+            needed. When you&apos;re ready, connect with other parents to carpool and see where your kid&apos;s
+            friends are headed this summer.{" "}
+            <strong className="text-foreground">Your info stays private unless you say otherwise.</strong>
           </p>
         </div>
       </section>
