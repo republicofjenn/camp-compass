@@ -9,7 +9,8 @@ export type CampFilters = {
   interest?: string;
   format?: "in_person" | "remote" | "both";
   age?: number;
-  near?: string; // a key in SF_NEIGHBORHOODS
+  near?: string; // a key in SF_NEIGHBORHOODS -- ignored if origin is also set
+  origin?: { lat: number; lng: number }; // e.g. a guardian's geocoded home location
   radiusMiles?: number;
 };
 
@@ -73,7 +74,7 @@ export async function getCamps(filters: CampFilters) {
     distanceMiles: null as number | null,
   }));
 
-  const origin = filters.near ? SF_NEIGHBORHOODS[filters.near] : undefined;
+  const origin = filters.origin ?? (filters.near ? SF_NEIGHBORHOODS[filters.near] : undefined);
   if (origin) {
     results = results
       .map((camp) => ({

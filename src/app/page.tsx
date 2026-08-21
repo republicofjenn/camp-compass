@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCamps, getInterestOptions, type CampFilters } from "@/lib/camps";
 import { SF_NEIGHBORHOODS } from "@/data/sf-neighborhoods";
+import { getCurrentGuardian } from "@/lib/auth";
 
 const RADIUS_OPTIONS = [1, 2, 3, 5, 10, 25];
 const NEIGHBORHOOD_NAMES = Object.keys(SF_NEIGHBORHOODS).sort((a, b) => a.localeCompare(b));
@@ -32,14 +33,19 @@ export default async function Home(props: PageProps<"/">) {
     typeof sp.age === "string" && sp.age.trim() !== "" && !Number.isNaN(Number(sp.age))
       ? Number(sp.age)
       : undefined;
-  const near =
-    typeof sp.near === "string" && sp.near in SF_NEIGHBORHOODS ? sp.near : undefined;
+  const nearParam = typeof sp.near === "string" ? sp.near : undefined;
+  const near = nearParam && nearParam in SF_NEIGHBORHOODS ? nearParam : undefined;
   const radiusMiles =
     typeof sp.radius === "string" && !Number.isNaN(Number(sp.radius))
       ? Number(sp.radius)
       : undefined;
 
-  const filters: CampFilters = { q, interest, format, age, near, radiusMiles };
+  const guardian = await getCurrentGuardian();
+  const hasHomeLocation = guardian?.homeLat != null && guardian?.homeLng != null;
+  const useHome = nearParam === "home" && hasHomeLocation;
+  const origin = useHome ? { lat: guardian!.homeLat!, lng: guardian!.homeLng! } : undefined;
+
+  const filters: CampFilters = { q, interest, format, age, near, origin, radiusMiles };
   const [camps, interestOptions] = await Promise.all([getCamps(filters), getInterestOptions()]);
 
   const grouped = new Map<string, typeof interestOptions>();
@@ -50,7 +56,7 @@ export default async function Home(props: PageProps<"/">) {
     grouped.set(key, list);
   }
 
-  const hasFilters = Boolean(q || interest || format || age !== undefined || near);
+  const hasFilters = Boolean(q || interest || format || age !== undefined || near || origin);
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
@@ -136,16 +142,25 @@ export default async function Home(props: PageProps<"/">) {
             <select
               id="near"
               name="near"
-              defaultValue={near ?? ""}
+              defaultValue={useHome ? "home" : (near ?? "")}
               className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
             >
               <option value="">Anywhere in SF</option>
+              {hasHomeLocation && <option value="home">My Home</option>}
               {NEIGHBORHOOD_NAMES.map((name) => (
                 <option key={name} value={name}>
                   {name}
                 </option>
               ))}
             </select>
+            {!hasHomeLocation && (
+              <p className="text-xs text-zinc-500 dark:text-zinc-500">
+                <Link href="/profile" className="underline underline-offset-2">
+                  Set your home address
+                </Link>{" "}
+                to search from there.
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-1">
@@ -156,8 +171,7 @@ export default async function Home(props: PageProps<"/">) {
               id="radius"
               name="radius"
               defaultValue={radiusMiles ?? 5}
-              disabled={!near}
-              className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] disabled:opacity-40 dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
+              className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
             >
               {RADIUS_OPTIONS.map((r) => (
                 <option key={r} value={r}>
