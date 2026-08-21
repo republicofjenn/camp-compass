@@ -6,11 +6,11 @@ import { distanceMiles } from "@/lib/geo";
 
 export type CampFilters = {
   q?: string;
-  interest?: string;
+  interests?: string[]; // OR-matched -- a camp matching ANY selected interest qualifies
   format?: "in_person" | "remote" | "both";
   age?: number;
   near?: string; // a key in SF_NEIGHBORHOODS -- ignored if origin is also set
-  origin?: { lat: number; lng: number }; // e.g. a guardian's geocoded home location
+  origin?: { lat: number; lng: number }; // e.g. a guardian's geocoded home location, or an ad-hoc geocoded search address
   radiusMiles?: number;
 };
 
@@ -47,13 +47,13 @@ export async function getCamps(filters: CampFilters) {
     conditions.push(or(sql`${camps.ageMax} is null`, gte(camps.ageMax, filters.age)));
   }
 
-  if (filters.interest) {
+  if (filters.interests && filters.interests.length > 0) {
     const rows = await db
       .select({ campId: campInterests.campId })
       .from(campInterests)
       .innerJoin(interests, eq(campInterests.interestId, interests.id))
-      .where(eq(interests.name, filters.interest));
-    const ids = rows.map((r) => r.campId);
+      .where(inArray(interests.name, filters.interests));
+    const ids = [...new Set(rows.map((r) => r.campId))];
     if (ids.length === 0) return [];
     conditions.push(inArray(camps.id, ids));
   }

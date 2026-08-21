@@ -33,19 +33,19 @@ export default async function FavoritesPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
+    <div className="flex flex-1 flex-col bg-background">
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-8 sm:px-10">
-        <h1 className="mb-6 text-2xl font-semibold tracking-tight text-black dark:text-zinc-50">Favorites</h1>
+        <h1 className="mb-6 text-2xl font-bold tracking-tight text-foreground">Favorites</h1>
 
         {kidsList.length === 0 ? (
-          <p className="mb-8 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mb-8 text-sm text-muted-foreground">
             <Link href="/kids" className="underline underline-offset-2">
               Add a kid
             </Link>{" "}
             to start favoriting camps.
           </p>
         ) : myFavorites.length === 0 ? (
-          <p className="mb-8 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mb-8 text-sm text-muted-foreground">
             No favorites yet.{" "}
             <Link href="/" className="underline underline-offset-2">
               Browse camps
@@ -59,20 +59,17 @@ export default async function FavoritesPage() {
               if (kidFavorites.length === 0) return null;
               return (
                 <section key={kid.id}>
-                  <h2 className="mb-3 text-lg font-semibold text-black dark:text-zinc-50">{kid.name}</h2>
+                  <h2 className="mb-3 text-lg font-semibold text-foreground">{kid.name}</h2>
                   <ul className="flex flex-col gap-3">
                     {kidFavorites.map((fav) => (
                       <li
                         key={fav.enrollmentId}
-                        className="rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.1] dark:bg-zinc-950"
+                        className="rounded-xl border border-border bg-surface p-4 shadow-sm"
                       >
-                        <Link
-                          href={`/camps/${fav.camp.id}`}
-                          className="font-medium text-black hover:underline dark:text-zinc-50"
-                        >
+                        <Link href={`/camps/${fav.camp.id}`} className="font-medium text-foreground hover:text-emerald hover:underline">
                           {fav.camp.name}
                         </Link>
-                        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                        <p className="mt-1 text-sm text-muted-foreground">
                           {fav.session.startDate ?? "Dates not listed"}
                           {fav.session.endDate ? ` – ${fav.session.endDate}` : ""}
                           {fav.camp.neighborhood ? ` · ${fav.camp.neighborhood}` : ""}
@@ -88,29 +85,26 @@ export default async function FavoritesPage() {
 
         {sharedFavorites.length > 0 && (
           <div>
-            <h2 className="mb-1 text-lg font-semibold text-black dark:text-zinc-50">Shared with you</h2>
-            <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+            <h2 className="mb-1 text-lg font-semibold text-foreground">Shared with you</h2>
+            <p className="mb-4 text-sm text-muted-foreground">
               From kids connected to yours whose parents have shared their camp plans.
             </p>
             <div className="flex flex-col gap-8">
               {[...sharedByKid.entries()].map(([kidId, kidFavorites]) => (
                 <section key={kidId}>
-                  <h3 className="mb-3 text-base font-semibold text-black dark:text-zinc-50">
+                  <h3 className="mb-3 text-base font-semibold text-foreground">
                     {kidFavorites[0].kidName}
                   </h3>
                   <ul className="flex flex-col gap-3">
                     {kidFavorites.map((fav) => (
                       <li
                         key={fav.enrollmentId}
-                        className="rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.1] dark:bg-zinc-950"
+                        className="rounded-xl border border-border bg-surface p-4 shadow-sm"
                       >
-                        <Link
-                          href={`/camps/${fav.camp.id}`}
-                          className="font-medium text-black hover:underline dark:text-zinc-50"
-                        >
+                        <Link href={`/camps/${fav.camp.id}`} className="font-medium text-foreground hover:text-emerald hover:underline">
                           {fav.camp.name}
                         </Link>
-                        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                        <p className="mt-1 text-sm text-muted-foreground">
                           {fav.session.startDate ?? "Dates not listed"}
                           {fav.session.endDate ? ` – ${fav.session.endDate}` : ""}
                           {fav.camp.neighborhood ? ` · ${fav.camp.neighborhood}` : ""}

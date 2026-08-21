@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCamps, getInterestOptions, type CampFilters } from "@/lib/camps";
 import { SF_NEIGHBORHOODS } from "@/data/sf-neighborhoods";
 import { getCurrentGuardian } from "@/lib/auth";
+import { geocodeAddress } from "@/lib/geocode";
 
 const RADIUS_OPTIONS = [1, 2, 3, 5, 10, 25];
 const NEIGHBORHOOD_NAMES = Object.keys(SF_NEIGHBORHOODS).sort((a, b) => a.localeCompare(b));
@@ -21,10 +22,15 @@ function ageLabel(ageMin: number | null, ageMax: number | null) {
   return `Up to age ${ageMax}`;
 }
 
+const inputClass =
+  "rounded-md border border-border bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-emerald";
+
 export default async function Home(props: PageProps<"/">) {
   const sp = await props.searchParams;
   const q = typeof sp.q === "string" && sp.q.trim() ? sp.q.trim() : undefined;
-  const interest = typeof sp.interest === "string" && sp.interest ? sp.interest : undefined;
+  const selectedInterests = (Array.isArray(sp.interests) ? sp.interests : sp.interests ? [sp.interests] : []).filter(
+    (i): i is string => typeof i === "string" && i.length > 0,
+  );
   const format =
     sp.format === "in_person" || sp.format === "remote" || sp.format === "both"
       ? sp.format
@@ -35,6 +41,7 @@ export default async function Home(props: PageProps<"/">) {
       : undefined;
   const nearParam = typeof sp.near === "string" ? sp.near : undefined;
   const near = nearParam && nearParam in SF_NEIGHBORHOODS ? nearParam : undefined;
+  const addressInput = typeof sp.address === "string" ? sp.address.trim() : "";
   const radiusMiles =
     typeof sp.radius === "string" && !Number.isNaN(Number(sp.radius))
       ? Number(sp.radius)
@@ -43,9 +50,23 @@ export default async function Home(props: PageProps<"/">) {
   const guardian = await getCurrentGuardian();
   const hasHomeLocation = guardian?.homeLat != null && guardian?.homeLng != null;
   const useHome = nearParam === "home" && hasHomeLocation;
-  const origin = useHome ? { lat: guardian!.homeLat!, lng: guardian!.homeLng! } : undefined;
 
-  const filters: CampFilters = { q, interest, format, age, near, origin, radiusMiles };
+  // Priority: a typed address (works with no account at all) > saved home
+  // location > a quick-pick neighborhood. Nobody should have to sign up
+  // just to see what's nearby.
+  let origin: { lat: number; lng: number } | undefined;
+  let addressNotFound = false;
+  if (addressInput) {
+    const coords = await geocodeAddress(addressInput);
+    if (coords) origin = coords;
+    else addressNotFound = true;
+  } else if (useHome) {
+    origin = { lat: guardian!.homeLat!, lng: guardian!.homeLng! };
+  } else if (near) {
+    origin = SF_NEIGHBORHOODS[near];
+  }
+
+  const filters: CampFilters = { q, interests: selectedInterests, format, age, origin, radiusMiles };
   const [camps, interestOptions] = await Promise.all([getCamps(filters), getInterestOptions()]);
 
   const grouped = new Map<string, typeof interestOptions>();
@@ -56,142 +77,190 @@ export default async function Home(props: PageProps<"/">) {
     grouped.set(key, list);
   }
 
-  const hasFilters = Boolean(q || interest || format || age !== undefined || near || origin);
+  const hasFilters = Boolean(
+    q || selectedInterests.length > 0 || format || age !== undefined || near || addressInput,
+  );
 
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
+    <div className="flex flex-1 flex-col bg-background">
+      <section className="border-b border-border bg-emerald-soft px-6 py-10 sm:px-10">
+        <div className="mx-auto max-w-5xl">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-emerald">
+            Summer camp shouldn&apos;t feel like the Hunger Games
+          </p>
+          <h1 className="mb-3 max-w-2xl text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            Find the right camp, fast &mdash; no 47-tab spreadsheet required.
+          </h1>
+          <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
+            Camp Compass matches your kid&apos;s interests, age, and your budget and radius to real SF camps &mdash;
+            no account required just to look. When you&apos;re ready, coordinate pickup crews and see which camps
+            your kid&apos;s friends are attending, entirely on your terms.{" "}
+            <strong className="text-foreground">
+              We never share your home address, budget, or your kid&apos;s info with anyone you haven&apos;t
+              explicitly authorized.
+            </strong>
+          </p>
+        </div>
+      </section>
+
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-8 sm:px-10">
         <form
           method="get"
-          className="mb-8 grid grid-cols-1 gap-4 rounded-xl border border-black/[.08] bg-white p-5 dark:border-white/[.1] dark:bg-zinc-950 sm:grid-cols-2 lg:grid-cols-4"
+          className="mb-8 flex flex-col gap-5 rounded-xl border border-border bg-surface p-5 shadow-sm"
         >
-          <div className="flex flex-col gap-1">
-            <label htmlFor="q" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Search
-            </label>
-            <input
-              id="q"
-              name="q"
-              type="text"
-              placeholder="Camp name..."
-              defaultValue={q ?? ""}
-              className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
-            />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="q" className="text-xs font-medium text-muted-foreground">
+                Search
+              </label>
+              <input
+                id="q"
+                name="q"
+                type="text"
+                placeholder="Camp name..."
+                defaultValue={q ?? ""}
+                className={inputClass}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="age" className="text-xs font-medium text-muted-foreground">
+                Kid&apos;s age
+              </label>
+              <input
+                id="age"
+                name="age"
+                type="number"
+                min={0}
+                max={18}
+                placeholder="e.g. 8"
+                defaultValue={age ?? ""}
+                className={inputClass}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="format" className="text-xs font-medium text-muted-foreground">
+                Format
+              </label>
+              <select id="format" name="format" defaultValue={format ?? ""} className={inputClass}>
+                <option value="">Any format</option>
+                <option value="in_person">In Person</option>
+                <option value="remote">Remote</option>
+                <option value="both">In Person & Remote</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="radius" className="text-xs font-medium text-muted-foreground">
+                Within
+              </label>
+              <select id="radius" name="radius" defaultValue={radiusMiles ?? 5} className={inputClass}>
+                {RADIUS_OPTIONS.map((r) => (
+                  <option key={r} value={r}>
+                    {r} miles
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor="interest" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Interest
-            </label>
-            <select
-              id="interest"
-              name="interest"
-              defaultValue={interest ?? ""}
-              className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
-            >
-              <option value="">All interests</option>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="address" className="text-xs font-medium text-muted-foreground">
+                Your address (optional, no account needed)
+              </label>
+              <input
+                id="address"
+                name="address"
+                type="text"
+                placeholder="e.g. 123 Main St, San Francisco, CA"
+                defaultValue={addressInput}
+                className={inputClass}
+              />
+              {addressNotFound && (
+                <p className="text-xs text-red-600">
+                  Couldn&apos;t find that address -- try adding city/state, or use the neighborhood picker instead.
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="near" className="text-xs font-medium text-muted-foreground">
+                Or pick a neighborhood
+              </label>
+              <select
+                id="near"
+                name="near"
+                defaultValue={useHome ? "home" : (near ?? "")}
+                disabled={Boolean(addressInput)}
+                className={`${inputClass} disabled:opacity-40`}
+              >
+                <option value="">Anywhere in SF</option>
+                {hasHomeLocation && <option value="home">My Home</option>}
+                {NEIGHBORHOOD_NAMES.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              {!hasHomeLocation && (
+                <p className="text-xs text-muted-foreground">
+                  <Link href="/login" className="underline underline-offset-2">
+                    Create an account
+                  </Link>{" "}
+                  to save your address and search from it every time.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-2 text-xs font-medium text-muted-foreground">Interests (pick any that apply)</p>
+            <div className="flex flex-col gap-2">
               {[...grouped.entries()].map(([category, items]) => (
-                <optgroup key={category} label={category}>
-                  {items.map((i) => (
-                    <option key={i.id} value={i.name}>
-                      {i.name}
-                    </option>
-                  ))}
-                </optgroup>
+                <div key={category} className="flex flex-wrap items-center gap-2">
+                  <span className="w-20 shrink-0 text-xs uppercase tracking-wide text-muted-foreground">
+                    {category}
+                  </span>
+                  {items.map((i) => {
+                    const checked = selectedInterests.includes(i.name);
+                    return (
+                      <label
+                        key={i.id}
+                        className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                          checked
+                            ? "border-emerald bg-emerald text-white"
+                            : "border-border bg-white text-foreground hover:border-emerald"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          name="interests"
+                          value={i.name}
+                          defaultChecked={checked}
+                          className="sr-only"
+                        />
+                        {i.name}
+                      </label>
+                    );
+                  })}
+                </div>
               ))}
-            </select>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor="age" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Kid&apos;s age
-            </label>
-            <input
-              id="age"
-              name="age"
-              type="number"
-              min={0}
-              max={18}
-              placeholder="e.g. 8"
-              defaultValue={age ?? ""}
-              className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label htmlFor="format" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Format
-            </label>
-            <select
-              id="format"
-              name="format"
-              defaultValue={format ?? ""}
-              className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
-            >
-              <option value="">Any format</option>
-              <option value="in_person">In Person</option>
-              <option value="remote">Remote</option>
-              <option value="both">In Person & Remote</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label htmlFor="near" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Near
-            </label>
-            <select
-              id="near"
-              name="near"
-              defaultValue={useHome ? "home" : (near ?? "")}
-              className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
-            >
-              <option value="">Anywhere in SF</option>
-              {hasHomeLocation && <option value="home">My Home</option>}
-              {NEIGHBORHOOD_NAMES.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
-            {!hasHomeLocation && (
-              <p className="text-xs text-zinc-500 dark:text-zinc-500">
-                <Link href="/profile" className="underline underline-offset-2">
-                  Set your home address
-                </Link>{" "}
-                to search from there.
-              </p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label htmlFor="radius" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Within
-            </label>
-            <select
-              id="radius"
-              name="radius"
-              defaultValue={radiusMiles ?? 5}
-              className="rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]"
-            >
-              {RADIUS_OPTIONS.map((r) => (
-                <option key={r} value={r}>
-                  {r} miles
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-end gap-3 sm:col-span-2 lg:col-span-4">
+          <div className="flex items-center gap-3">
             <button
               type="submit"
-              className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+              className="rounded-full bg-emerald px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-strong"
             >
               Search
             </button>
             {hasFilters && (
               <Link
                 href="/"
-                className="text-sm font-medium text-zinc-600 underline underline-offset-2 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+                className="text-sm font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground"
               >
                 Clear filters
               </Link>
@@ -199,12 +268,12 @@ export default async function Home(props: PageProps<"/">) {
           </div>
         </form>
 
-        <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mb-4 text-sm text-muted-foreground">
           {camps.length} {camps.length === 1 ? "camp" : "camps"} found
         </p>
 
         {camps.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-black/[.15] p-8 text-center text-sm text-zinc-600 dark:border-white/[.2] dark:text-zinc-400">
+          <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
             No camps match those filters. Try widening your search.
           </p>
         ) : (
@@ -212,16 +281,16 @@ export default async function Home(props: PageProps<"/">) {
             {camps.map((camp) => (
               <li
                 key={camp.id}
-                className="flex flex-col gap-2 rounded-xl border border-black/[.08] bg-white p-5 dark:border-white/[.1] dark:bg-zinc-950"
+                className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-5 shadow-sm"
               >
                 <Link
                   href={`/camps/${camp.id}`}
-                  className="text-lg font-semibold leading-snug text-black hover:underline dark:text-zinc-50"
+                  className="text-lg font-semibold leading-snug text-foreground hover:text-emerald hover:underline"
                 >
                   {camp.name}
                 </Link>
 
-                <div className="flex flex-wrap gap-2 text-xs text-zinc-600 dark:text-zinc-400">
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                   {camp.neighborhood && <span>{camp.neighborhood}</span>}
                   <span>&middot;</span>
                   <span>{ageLabel(camp.ageMin, camp.ageMax)}</span>
@@ -236,15 +305,11 @@ export default async function Home(props: PageProps<"/">) {
                 </div>
 
                 {camp.description && (
-                  <p className="line-clamp-3 text-sm text-zinc-700 dark:text-zinc-300">
-                    {camp.description}
-                  </p>
+                  <p className="line-clamp-3 text-sm text-foreground/80">{camp.description}</p>
                 )}
 
                 {camp.session?.priceText && (
-                  <p className="text-sm font-medium text-black dark:text-zinc-50">
-                    {camp.session.priceText.split("\n")[0]}
-                  </p>
+                  <p className="text-sm font-medium text-foreground">{camp.session.priceText.split("\n")[0]}</p>
                 )}
 
                 {camp.interestTags.length > 0 && (
@@ -252,13 +317,13 @@ export default async function Home(props: PageProps<"/">) {
                     {camp.interestTags.slice(0, 4).map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full bg-black/[.06] px-2.5 py-0.5 text-xs text-zinc-700 dark:bg-white/[.08] dark:text-zinc-300"
+                        className="rounded-full bg-gold-soft px-2.5 py-0.5 text-xs font-medium text-foreground"
                       >
                         {tag}
                       </span>
                     ))}
                     {camp.interestTags.length > 4 && (
-                      <span className="rounded-full bg-black/[.06] px-2.5 py-0.5 text-xs text-zinc-700 dark:bg-white/[.08] dark:text-zinc-300">
+                      <span className="rounded-full bg-surface-muted px-2.5 py-0.5 text-xs text-muted-foreground">
                         +{camp.interestTags.length - 4} more
                       </span>
                     )}

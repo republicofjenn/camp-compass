@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fbf7ee;
+  --foreground: #1c2b22;
+  --surface: #ffffff;
+  --surface-muted: #f1f6ec;
+  --border: #dce8d5;
+  --emerald: #0f6b4c;
+  --emerald-strong: #0b5a3f;
+  --emerald-soft: #e4f3ea;
+  --gold: #b8860b;
+  --gold-soft: #fbf0d2;
+  --muted-foreground: #5b6b5e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-emerald: var(--emerald);
+  --color-emerald-strong: var(--emerald-strong);
+  --color-emerald-soft: var(--emerald-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-muted-foreground: var(--muted-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #10201a;
+    --foreground: #f3efe1;
+    --surface: #16281f;
+    --surface-muted: #1b3226;
+    --border: #2a4536;
+    --emerald: #34d399;
+    --emerald-strong: #6ee7b7;
+    --emerald-soft: #1b3226;
+    --gold: #e8c547;
+    --gold-soft: #2e2712;
+    --muted-foreground: #9db0a0;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

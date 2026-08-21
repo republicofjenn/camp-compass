@@ -7,11 +7,9 @@ export default async function ProfilePage() {
   if (!guardian) redirect("/login");
 
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
+    <div className="flex flex-1 flex-col bg-background">
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-8 sm:px-10">
-        <h1 className="mb-6 text-2xl font-semibold tracking-tight text-black dark:text-zinc-50">
-          Profile & Search Preferences
-        </h1>
+        <h1 className="mb-6 text-2xl font-bold tracking-tight text-foreground">Profile & Search Preferences</h1>
 
         <ProfileForm
           hasHomeLocation={guardian.homeLat !== null && guardian.homeLng !== null}

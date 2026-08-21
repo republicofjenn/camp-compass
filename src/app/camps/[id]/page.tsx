@@ -23,15 +23,15 @@ function ageLabel(ageMin: number | null, ageMax: number | null) {
 function registrationLabel(status: string) {
   switch (status) {
     case "open":
-      return { text: "Registration open", className: "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300" };
+      return { text: "Registration open", className: "bg-emerald-soft text-emerald-strong" };
     case "not_yet_open":
-      return { text: "Registration not yet open", className: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" };
+      return { text: "Registration not yet open", className: "bg-gold-soft text-foreground" };
     case "waitlist":
-      return { text: "Waitlist only", className: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" };
+      return { text: "Waitlist only", className: "bg-gold-soft text-foreground" };
     case "full":
-      return { text: "Full", className: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300" };
+      return { text: "Full", className: "bg-red-100 text-red-800" };
     default:
-      return { text: "Registration status unknown", className: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300" };
+      return { text: "Registration status unknown", className: "bg-surface-muted text-muted-foreground" };
   }
 }
 
@@ -52,20 +52,15 @@ export default async function CampDetailPage(props: PageProps<"/camps/[id]">) {
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
+    <div className="flex flex-1 flex-col bg-background">
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-8 sm:px-10">
-        <Link
-          href="/"
-          className="mb-6 inline-block text-sm font-medium text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
-        >
+        <Link href="/" className="mb-6 inline-block text-sm font-medium text-muted-foreground hover:text-emerald">
           &larr; Back to search
         </Link>
 
-        <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-zinc-50">
-          {camp.name}
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">{camp.name}</h1>
 
-        <div className="mt-2 flex flex-wrap gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="mt-2 flex flex-wrap gap-2 text-sm text-muted-foreground">
           {camp.neighborhood && <span>{camp.neighborhood}</span>}
           <span>&middot;</span>
           <span>{ageLabel(camp.ageMin, camp.ageMax)}</span>
@@ -76,10 +71,7 @@ export default async function CampDetailPage(props: PageProps<"/camps/[id]">) {
         {camp.interestTags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-1.5">
             {camp.interestTags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full bg-black/[.06] px-2.5 py-0.5 text-xs text-zinc-700 dark:bg-white/[.08] dark:text-zinc-300"
-              >
+              <span key={tag} className="rounded-full bg-gold-soft px-2.5 py-0.5 text-xs font-medium text-foreground">
                 {tag}
               </span>
             ))}
@@ -87,25 +79,22 @@ export default async function CampDetailPage(props: PageProps<"/camps/[id]">) {
         )}
 
         {camp.description && (
-          <p className="mt-6 whitespace-pre-line text-base leading-relaxed text-zinc-800 dark:text-zinc-200">
+          <p className="mt-6 whitespace-pre-line text-base leading-relaxed text-foreground/85">
             {camp.description}
           </p>
         )}
 
         <section className="mt-8 flex flex-col gap-4">
-          <h2 className="text-lg font-semibold text-black dark:text-zinc-50">Sessions</h2>
+          <h2 className="text-lg font-semibold text-foreground">Sessions</h2>
           {camp.sessions.length === 0 ? (
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">No session details available yet.</p>
+            <p className="text-sm text-muted-foreground">No session details available yet.</p>
           ) : (
             camp.sessions.map((session) => {
               const reg = registrationLabel(session.registrationStatus);
               return (
-                <div
-                  key={session.id}
-                  className="rounded-xl border border-black/[.08] bg-white p-5 dark:border-white/[.1] dark:bg-zinc-950"
-                >
+                <div key={session.id} className="rounded-xl border border-border bg-surface p-5 shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-medium text-black dark:text-zinc-50">
+                    <p className="font-medium text-foreground">
                       {session.startDate ?? "Dates not listed"}
                       {session.endDate ? ` – ${session.endDate}` : ""}
                     </p>
@@ -113,33 +102,29 @@ export default async function CampDetailPage(props: PageProps<"/camps/[id]">) {
                       {reg.text}
                     </span>
                   </div>
-                  {session.hoursText && (
-                    <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{session.hoursText}</p>
-                  )}
+                  {session.hoursText && <p className="mt-1 text-sm text-muted-foreground">{session.hoursText}</p>}
                   {session.priceText && (
-                    <p className="mt-1 whitespace-pre-line text-sm text-zinc-800 dark:text-zinc-200">
-                      {session.priceText}
-                    </p>
+                    <p className="mt-1 whitespace-pre-line text-sm text-foreground/85">{session.priceText}</p>
                   )}
                   {(session.ageMin !== null || session.ageMax !== null) && (
-                    <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {ageLabel(session.ageMin, session.ageMax)}
                       {session.level ? ` · ${session.level}` : ""}
                     </p>
                   )}
 
-                  <div className="mt-3 flex flex-wrap gap-2 border-t border-black/[.06] pt-3 dark:border-white/[.08]">
+                  <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
                     {!guardian ? (
                       <Link
                         href="/login"
-                        className="text-sm text-zinc-600 underline underline-offset-2 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+                        className="text-sm text-muted-foreground underline underline-offset-2 hover:text-emerald"
                       >
                         Sign in to favorite this for your kid
                       </Link>
                     ) : guardianKidsList.length === 0 ? (
                       <Link
                         href="/kids"
-                        className="text-sm text-zinc-600 underline underline-offset-2 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+                        className="text-sm text-muted-foreground underline underline-offset-2 hover:text-emerald"
                       >
                         Add a kid to start favoriting
                       </Link>
@@ -155,8 +140,8 @@ export default async function CampDetailPage(props: PageProps<"/camps/[id]">) {
                               type="submit"
                               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                                 isFavorited
-                                  ? "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200"
-                                  : "bg-black/[.06] text-zinc-700 hover:bg-black/[.1] dark:bg-white/[.08] dark:text-zinc-300 dark:hover:bg-white/[.14]"
+                                  ? "bg-gold-soft text-foreground"
+                                  : "bg-surface-muted text-muted-foreground hover:bg-emerald-soft"
                               }`}
                             >
                               {isFavorited ? "★" : "☆"} {kid.name}
@@ -176,18 +161,14 @@ export default async function CampDetailPage(props: PageProps<"/camps/[id]">) {
           <section className="mt-8 flex flex-col gap-4">
             {camp.dropoffPickupInfo && (
               <div>
-                <h2 className="text-lg font-semibold text-black dark:text-zinc-50">Drop-off &amp; pickup</h2>
-                <p className="mt-1 whitespace-pre-line text-sm text-zinc-800 dark:text-zinc-200">
-                  {camp.dropoffPickupInfo}
-                </p>
+                <h2 className="text-lg font-semibold text-foreground">Drop-off &amp; pickup</h2>
+                <p className="mt-1 whitespace-pre-line text-sm text-foreground/85">{camp.dropoffPickupInfo}</p>
               </div>
             )}
             {camp.packingList && (
               <div>
-                <h2 className="text-lg font-semibold text-black dark:text-zinc-50">What to pack</h2>
-                <p className="mt-1 whitespace-pre-line text-sm text-zinc-800 dark:text-zinc-200">
-                  {camp.packingList}
-                </p>
+                <h2 className="text-lg font-semibold text-foreground">What to pack</h2>
+                <p className="mt-1 whitespace-pre-line text-sm text-foreground/85">{camp.packingList}</p>
               </div>
             )}
           </section>
@@ -198,7 +179,7 @@ export default async function CampDetailPage(props: PageProps<"/camps/[id]">) {
             href={camp.website}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-block rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+            className="mt-8 inline-block rounded-full bg-emerald px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-strong"
           >
             Visit camp website to start sign-up &rarr;
           </a>

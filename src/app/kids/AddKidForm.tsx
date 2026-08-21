@@ -5,7 +5,7 @@ import { addKid } from "@/app/actions/kids";
 import { monthName } from "@/lib/age";
 
 const inputClass =
-  "rounded-md border border-black/[.12] bg-transparent px-3 py-2 text-sm text-black outline-none focus:border-black/[.3] dark:border-white/[.15] dark:text-zinc-50 dark:focus:border-white/[.4]";
+  "rounded-md border border-border bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-emerald";
 
 type InterestOption = { id: string; name: string; category: string | null };
 
@@ -30,19 +30,19 @@ export default function AddKidForm({ interestOptions }: { interestOptions: Inter
         await action(formData);
         formRef.current?.reset();
       }}
-      className="flex flex-col gap-4 rounded-xl border border-black/[.08] bg-white p-5 dark:border-white/[.1] dark:bg-zinc-950"
+      className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-5 shadow-sm"
     >
-      <h2 className="text-lg font-semibold text-black dark:text-zinc-50">Add a kid</h2>
+      <h2 className="text-lg font-semibold text-foreground">Add a kid</h2>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex flex-col gap-1">
-          <label htmlFor="name" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+          <label htmlFor="name" className="text-xs font-medium text-muted-foreground">
             Name
           </label>
           <input id="name" name="name" type="text" required className={inputClass} />
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="birthMonth" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+          <label htmlFor="birthMonth" className="text-xs font-medium text-muted-foreground">
             Birth month
           </label>
           <select id="birthMonth" name="birthMonth" required defaultValue="" className={inputClass}>
@@ -57,7 +57,7 @@ export default function AddKidForm({ interestOptions }: { interestOptions: Inter
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <label htmlFor="birthYear" className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+          <label htmlFor="birthYear" className="text-xs font-medium text-muted-foreground">
             Birth year
           </label>
           <select id="birthYear" name="birthYear" required defaultValue="" className={inputClass}>
@@ -74,17 +74,15 @@ export default function AddKidForm({ interestOptions }: { interestOptions: Inter
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Interests</p>
+        <p className="text-xs font-medium text-muted-foreground">Interests</p>
         <div className="flex flex-col gap-3">
           {[...grouped.entries()].map(([category, items]) => (
             <div key={category}>
-              <p className="mb-1 text-xs uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
-                {category}
-              </p>
+              <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">{category}</p>
               <div className="flex flex-wrap gap-x-4 gap-y-1.5">
                 {items.map((i) => (
-                  <label key={i.id} className="flex items-center gap-1.5 text-sm text-zinc-800 dark:text-zinc-200">
-                    <input type="checkbox" name="interests" value={i.id} className="h-4 w-4" />
+                  <label key={i.id} className="flex items-center gap-1.5 text-sm text-foreground/85">
+                    <input type="checkbox" name="interests" value={i.id} className="h-4 w-4 accent-emerald" />
                     {i.name}
                   </label>
                 ))}
@@ -94,12 +92,12 @@ export default function AddKidForm({ interestOptions }: { interestOptions: Inter
         </div>
       </div>
 
-      {state?.error && <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>}
+      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
 
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-60 dark:hover:bg-[#ccc]"
+        className="self-start rounded-full bg-emerald px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-strong disabled:opacity-60"
       >
         {pending ? "Adding..." : "Add Kid"}
       </button>

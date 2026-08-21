@@ -24,26 +24,26 @@ export default async function ConnectionsPage() {
   const sharedSet = new Set(shares.filter((s) => s.shared).map((s) => `${s.connectionId}:${s.kidId}`));
 
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
+    <div className="flex flex-1 flex-col bg-background">
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-8 sm:px-10">
-        <h1 className="mb-2 text-2xl font-semibold tracking-tight text-black dark:text-zinc-50">
+        <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground">
           Family Connections
         </h1>
-        <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mb-6 text-sm text-muted-foreground">
           Connect with other parents to see which camps your kids&apos; friends are attending -- only once both
           sides agree, and only for the specific kids you choose to share.
         </p>
 
         {incoming.length > 0 && (
           <section className="mb-8">
-            <h2 className="mb-3 text-lg font-semibold text-black dark:text-zinc-50">Requests for you</h2>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">Requests for you</h2>
             <ul className="flex flex-col gap-3">
               {incoming.map((c) => (
                 <li
                   key={c.connectionId}
-                  className="flex items-center justify-between gap-4 rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.1] dark:bg-zinc-950"
+                  className="flex items-center justify-between gap-4 rounded-xl border border-border bg-surface p-4 shadow-sm"
                 >
-                  <span className="text-sm text-black dark:text-zinc-50">
+                  <span className="text-sm text-foreground">
                     <strong>{c.partnerName}</strong> wants to connect
                   </span>
                   <div className="flex gap-2">
@@ -52,7 +52,7 @@ export default async function ConnectionsPage() {
                       <input type="hidden" name="status" value="accepted" />
                       <button
                         type="submit"
-                        className="rounded-full bg-foreground px-4 py-1.5 text-xs font-medium text-background hover:bg-[#383838] dark:hover:bg-[#ccc]"
+                        className="rounded-full bg-emerald px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-strong"
                       >
                         Accept
                       </button>
@@ -62,7 +62,7 @@ export default async function ConnectionsPage() {
                       <input type="hidden" name="status" value="declined" />
                       <button
                         type="submit"
-                        className="rounded-full bg-black/[.06] px-4 py-1.5 text-xs font-medium text-zinc-700 hover:bg-black/[.1] dark:bg-white/[.08] dark:text-zinc-300 dark:hover:bg-white/[.14]"
+                        className="rounded-full bg-surface-muted px-4 py-1.5 text-xs font-medium text-muted-foreground hover:bg-emerald-soft"
                       >
                         Decline
                       </button>
@@ -76,15 +76,15 @@ export default async function ConnectionsPage() {
 
         {outgoing.length > 0 && (
           <section className="mb-8">
-            <h2 className="mb-3 text-lg font-semibold text-black dark:text-zinc-50">Sent requests</h2>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">Sent requests</h2>
             <ul className="flex flex-col gap-3">
               {outgoing.map((c) => (
                 <li
                   key={c.connectionId}
-                  className="flex items-center justify-between gap-4 rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.1] dark:bg-zinc-950"
+                  className="flex items-center justify-between gap-4 rounded-xl border border-border bg-surface p-4 shadow-sm"
                 >
-                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                    Waiting for <strong className="text-black dark:text-zinc-50">{c.partnerName}</strong> to
+                  <span className="text-sm text-muted-foreground">
+                    Waiting for <strong className="text-foreground">{c.partnerName}</strong> to
                     respond
                   </span>
                   <form action={respondToConnection}>
@@ -92,7 +92,7 @@ export default async function ConnectionsPage() {
                     <input type="hidden" name="status" value="declined" />
                     <button
                       type="submit"
-                      className="text-xs text-zinc-500 underline underline-offset-2 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50"
+                      className="text-xs text-muted-foreground underline underline-offset-2 hover:text-emerald"
                     >
                       Cancel
                     </button>
@@ -105,19 +105,19 @@ export default async function ConnectionsPage() {
 
         {accepted.length > 0 && (
           <section className="mb-8">
-            <h2 className="mb-3 text-lg font-semibold text-black dark:text-zinc-50">Connected families</h2>
+            <h2 className="mb-3 text-lg font-semibold text-foreground">Connected families</h2>
             <ul className="flex flex-col gap-4">
               {accepted.map((c) => (
                 <li
                   key={c.connectionId}
-                  className="rounded-xl border border-black/[.08] bg-white p-4 dark:border-white/[.1] dark:bg-zinc-950"
+                  className="rounded-xl border border-border bg-surface p-4 shadow-sm"
                 >
-                  <p className="mb-2 font-medium text-black dark:text-zinc-50">{c.partnerName}</p>
+                  <p className="mb-2 font-medium text-foreground">{c.partnerName}</p>
                   {myKids.length === 0 ? (
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">Add a kid to share their schedule.</p>
+                    <p className="text-sm text-muted-foreground">Add a kid to share their schedule.</p>
                   ) : (
                     <div className="flex flex-col gap-1.5">
-                      <p className="text-xs text-zinc-500 dark:text-zinc-500">
+                      <p className="text-xs text-muted-foreground">
                         Share which kid&apos;s camp plans with {c.partnerName}:
                       </p>
                       {myKids.map((kid) => {
@@ -131,8 +131,8 @@ export default async function ConnectionsPage() {
                               type="submit"
                               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                                 isShared
-                                  ? "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200"
-                                  : "bg-black/[.06] text-zinc-700 hover:bg-black/[.1] dark:bg-white/[.08] dark:text-zinc-300 dark:hover:bg-white/[.14]"
+                                  ? "bg-gold-soft text-foreground"
+                                  : "bg-surface-muted text-muted-foreground hover:bg-emerald-soft"
                               }`}
                             >
                               {isShared ? "✓ Sharing" : "Share"} {kid.name}
