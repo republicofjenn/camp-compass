@@ -118,6 +118,10 @@ function mapFormat(raw: string): "in_person" | "remote" | "both" {
 }
 
 function parsePriceCents(raw: string): number | null {
+  // Only treat as free on an unambiguous exact match -- "Free for those who
+  // qualify as low income" is NOT $0 for everyone, so leave that unparsed
+  // (excluded from budget filtering) rather than mislead a "Free" search.
+  if (raw.trim().toLowerCase() === "free") return 0;
   const m = raw.match(/\$([\d,]+)/);
   if (!m) return null;
   return Math.round(parseFloat(m[1].replace(/,/g, "")) * 100);

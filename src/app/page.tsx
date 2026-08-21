@@ -7,6 +7,20 @@ import { geocodeAddress } from "@/lib/geocode";
 const RADIUS_OPTIONS = [1, 2, 3, 5, 10, 25];
 const NEIGHBORHOOD_NAMES = Object.keys(SF_NEIGHBORHOODS).sort((a, b) => a.localeCompare(b));
 
+// Bounds are offset by 1 cent at each boundary so bands don't overlap --
+// e.g. a camp priced exactly $200 belongs to "$0-$200", not also "$200-$400".
+// "Free" stays min=max=0, which naturally means "exactly $0" with the same
+// gte/lte filter logic, no special-casing needed.
+const BUDGET_BANDS: { value: string; label: string; minCents: number; maxCents?: number }[] = [
+  { value: "free", label: "Free", minCents: 0, maxCents: 0 },
+  { value: "0-200", label: "$0 - $200/wk", minCents: 1, maxCents: 20000 },
+  { value: "200-400", label: "$200 - $400/wk", minCents: 20001, maxCents: 40000 },
+  { value: "400-600", label: "$400 - $600/wk", minCents: 40001, maxCents: 60000 },
+  { value: "600-800", label: "$600 - $800/wk", minCents: 60001, maxCents: 80000 },
+  { value: "800-1000", label: "$800 - $1000/wk", minCents: 80001, maxCents: 100000 },
+  { value: "1000+", label: "$1000+/wk", minCents: 100001 },
+];
+
 function formatLabel(format: string) {
   if (format === "in_person") return "In Person";
   if (format === "remote") return "Remote";
@@ -46,6 +60,8 @@ export default async function Home(props: PageProps<"/">) {
     typeof sp.radius === "string" && !Number.isNaN(Number(sp.radius))
       ? Number(sp.radius)
       : undefined;
+  const budgetParam = typeof sp.budget === "string" ? sp.budget : undefined;
+  const budgetBand = BUDGET_BANDS.find((b) => b.value === budgetParam);
 
   const guardian = await getCurrentGuardian();
   const hasHomeLocation = guardian?.homeLat != null && guardian?.homeLng != null;
@@ -66,7 +82,16 @@ export default async function Home(props: PageProps<"/">) {
     origin = SF_NEIGHBORHOODS[near];
   }
 
-  const filters: CampFilters = { q, interests: selectedInterests, format, age, origin, radiusMiles };
+  const filters: CampFilters = {
+    q,
+    interests: selectedInterests,
+    format,
+    age,
+    origin,
+    radiusMiles,
+    budgetMinCents: budgetBand?.minCents,
+    budgetMaxCents: budgetBand?.maxCents,
+  };
   const [camps, interestOptions] = await Promise.all([getCamps(filters), getInterestOptions()]);
 
   const grouped = new Map<string, typeof interestOptions>();
@@ -78,7 +103,7 @@ export default async function Home(props: PageProps<"/">) {
   }
 
   const hasFilters = Boolean(
-    q || selectedInterests.length > 0 || format || age !== undefined || near || addressInput,
+    q || selectedInterests.length > 0 || format || age !== undefined || near || addressInput || budgetBand,
   );
 
   return (
@@ -105,7 +130,7 @@ export default async function Home(props: PageProps<"/">) {
           method="get"
           className="mb-8 flex flex-col gap-5 rounded-xl border border-border bg-surface p-5 shadow-sm"
         >
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div className="flex flex-col gap-1">
               <label htmlFor="q" className="text-xs font-medium text-muted-foreground">
                 Search
@@ -156,6 +181,20 @@ export default async function Home(props: PageProps<"/">) {
                 {RADIUS_OPTIONS.map((r) => (
                   <option key={r} value={r}>
                     {r} miles
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="budget" className="text-xs font-medium text-muted-foreground">
+                Weekly budget
+              </label>
+              <select id="budget" name="budget" defaultValue={budgetParam ?? ""} className={inputClass}>
+                <option value="">Any budget</option>
+                {BUDGET_BANDS.map((b) => (
+                  <option key={b.value} value={b.value}>
+                    {b.label}
                   </option>
                 ))}
               </select>

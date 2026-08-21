@@ -12,6 +12,8 @@ export type CampFilters = {
   near?: string; // a key in SF_NEIGHBORHOODS -- ignored if origin is also set
   origin?: { lat: number; lng: number }; // e.g. a guardian's geocoded home location, or an ad-hoc geocoded search address
   radiusMiles?: number;
+  budgetMinCents?: number;
+  budgetMaxCents?: number; // undefined means no upper bound (the "$1000+" band)
 };
 
 export async function getInterestOptions() {
@@ -45,6 +47,14 @@ export async function getCamps(filters: CampFilters) {
   if (filters.age !== undefined) {
     conditions.push(or(sql`${camps.ageMin} is null`, lte(camps.ageMin, filters.age)));
     conditions.push(or(sql`${camps.ageMax} is null`, gte(camps.ageMax, filters.age)));
+  }
+  if (filters.budgetMinCents !== undefined) {
+    // Camps with unparsed pricing (priceCents null) drop out here too --
+    // same "exclude rather than guess" rule as everywhere else in this file.
+    conditions.push(gte(sessions.priceCents, filters.budgetMinCents));
+  }
+  if (filters.budgetMaxCents !== undefined) {
+    conditions.push(lte(sessions.priceCents, filters.budgetMaxCents));
   }
 
   if (filters.interests && filters.interests.length > 0) {
