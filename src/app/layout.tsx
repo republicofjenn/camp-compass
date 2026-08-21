@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Camp Compass",
   description: "Find SF Bay Area summer camps that match your kid's interests, age, and budget.",
+  // POC stage -- not ready for search engines yet. Remove once we decide
+  // to make this publicly discoverable (see also src/app/robots.ts).
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
