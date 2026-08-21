@@ -30,6 +30,12 @@ export default async function Header() {
                 Favorites
               </Link>
               <Link
+                href="/connections"
+                className="text-zinc-700 hover:text-black dark:text-zinc-300 dark:hover:text-zinc-50"
+              >
+                Connections
+              </Link>
+              <Link
                 href="/profile"
                 className="text-zinc-700 hover:text-black dark:text-zinc-300 dark:hover:text-zinc-50"
               >

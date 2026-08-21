@@ -33,3 +33,26 @@ export async function getFavoritesForGuardian(guardianId: string, kidIds: string
       .where(and(inArray(sessionEnrollments.kidId, kidIds), eq(sessionEnrollments.status, "favorited"))),
   );
 }
+
+// All favorites visible to this guardian -- their own kids' AND any kids
+// shared with them via an accepted connection. Deliberately has NO kid_id
+// filter: RLS (can_view_kid_schedule) is what actually determines which
+// rows come back, not this query. Callers split "mine" vs "shared" by
+// checking kidId against their own kid list.
+export async function getVisibleFavorites(guardianId: string) {
+  return withAuthenticatedDb(guardianId, (tx) =>
+    tx
+      .select({
+        enrollmentId: sessionEnrollments.id,
+        kidId: sessionEnrollments.kidId,
+        kidName: kids.name,
+        session: sessions,
+        camp: camps,
+      })
+      .from(sessionEnrollments)
+      .innerJoin(sessions, eq(sessionEnrollments.sessionId, sessions.id))
+      .innerJoin(camps, eq(sessions.campId, camps.id))
+      .innerJoin(kids, eq(sessionEnrollments.kidId, kids.id))
+      .where(eq(sessionEnrollments.status, "favorited")),
+  );
+}
