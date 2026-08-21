@@ -4,6 +4,13 @@ Helps parents find summer camps that match their kid's interests, fit their budg
 
 **Status:** early-stage POC, piloting with the San Francisco, CA parent community.
 
+**Live (not indexed yet):** https://camp-compass-ten.vercel.app -- blocked from search
+engines via `robots.txt` + a `noindex` meta tag until we decide to make this
+publicly discoverable. Deployed via `vercel deploy --prod` (CLI), not GitHub
+auto-deploy yet -- Vercel's GitHub App connection failed on first attempt and
+wasn't retried since a stable URL was the actual goal. Revisit if continuous
+deployment on push becomes worth setting up.
+
 ## What it does
 
 Parents create a profile for their kid (interests, age) and set a home location, budget range, and search radius. Camp Compass surfaces matching camps in the area, shows drop-off/pickup instructions, what to pack, and location details, and helps kick off the sign-up process. Once a camp is chosen, it sends calendar invites to relevant caregivers and reminders ahead of key dates (pack day, first day, etc.).
