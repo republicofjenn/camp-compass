@@ -16,6 +16,37 @@ session and silently bounced to `/login` -- confusing, no explanation. Fixed:
   (confirmed via `auth.users.confirmation_token` having a `pkce_` prefix).
   The route checks for `code` first, falls back to `token_hash`+`type`.
 
+## Testing gap found 2026-09-11: earlier verification never hit Supabase's real verify endpoint
+
+The end-to-end tests recorded as "passing" for this flow (both when it was
+built, and when re-verified after the 2026-09-11 RLS lockdown) used a
+shortcut to avoid needing real email access: grab the raw PKCE `auth_code`
+directly from `auth.flow_state` and hit our own `/auth/confirm?code=...`
+route with it directly.
+
+That shortcut **skips Supabase's own hosted verify endpoint**
+(`{project}.supabase.co/auth/v1/verify?token=...&type=signup&redirect_to=...`),
+which is what a real confirmation email link actually points to, and which
+is what marks `auth.users.email_confirmed_at`. Confirmed by testing: the
+shortcut successfully exchanged the code for a working session (redirected
+to `/kids?confirmed=1`, looked fully logged in), but `email_confirmed_at`
+stayed `null` in the database the whole time -- a real user going through
+this shortcut would be able to use the app while technically still
+"unconfirmed" if anything elsewhere ever checks that flag.
+
+Also: the raw `auth_code` in `flow_state` is single-use -- once "spent" via
+the shortcut, the real verify endpoint returns
+`flow_state_not_found` for that signup, so the two paths can't be compared
+on the same test user after the fact.
+
+**Not yet fixed or re-verified end-to-end via the real path.** Two
+practical ways to actually test this properly: use a real inbox and click
+the real link, or in dev, read the verify URL out of Supabase's own
+Auth logs (Dashboard -> Logs -> Auth) rather than reconstructing it from
+`flow_state`. Worth doing before this matters for real users, since the
+gap is specifically "does a real click actually flip
+`email_confirmed_at`," which the shortcut never exercised.
+
 ## Known limitation: PKCE requires same-device confirmation
 
 PKCE stores a code verifier in a cookie on whichever browser called
