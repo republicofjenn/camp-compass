@@ -93,6 +93,7 @@ export default async function Home(props: PageProps<"/">) {
     budgetMaxCents: budgetBand?.maxCents,
   };
   const [camps, interestOptions] = await Promise.all([getCamps(filters), getInterestOptions()]);
+  const unconfirmedBudgetCount = camps.filter((c) => c.budgetUnconfirmed).length;
 
   const grouped = new Map<string, typeof interestOptions>();
   for (const i of interestOptions) {
@@ -306,6 +307,13 @@ export default async function Home(props: PageProps<"/">) {
 
         <p className="mb-4 text-sm text-muted-foreground">
           {camps.length} {camps.length === 1 ? "camp" : "camps"} found
+          {budgetBand && unconfirmedBudgetCount > 0 && (
+            <>
+              {" "}
+              &middot; {unconfirmedBudgetCount} without a listed price, so we couldn&apos;t confirm{" "}
+              {unconfirmedBudgetCount === 1 ? "it fits" : "they fit"} your budget
+            </>
+          )}
         </p>
 
         {camps.length === 0 ? (
@@ -346,6 +354,14 @@ export default async function Home(props: PageProps<"/">) {
 
                 {camp.session?.priceText && (
                   <p className="text-sm font-medium text-foreground">{camp.session.priceText.split("\n")[0]}</p>
+                )}
+
+                {camp.budgetUnconfirmed && (
+                  <p className="rounded-md bg-gold-soft px-2.5 py-1.5 text-xs font-medium text-foreground">
+                    Budget not confirmed &mdash; no price listed for this camp, so we can&apos;t tell if it fits{" "}
+                    {budgetBand?.value === "free" ? "free" : (budgetBand?.label ?? "your budget")}. Check with the
+                    camp.
+                  </p>
                 )}
 
                 {camp.interestTags.length > 0 && (

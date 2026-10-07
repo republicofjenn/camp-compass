@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
+import { and, asc, eq, gte, ilike, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { camps, campInterests, interests, sessions } from "@/db/schema";
 import { SF_NEIGHBORHOODS } from "@/data/sf-neighborhoods";
@@ -48,13 +48,16 @@ export async function getCamps(filters: CampFilters) {
     conditions.push(or(sql`${camps.ageMin} is null`, lte(camps.ageMin, filters.age)));
     conditions.push(or(sql`${camps.ageMax} is null`, gte(camps.ageMax, filters.age)));
   }
-  if (filters.budgetMinCents !== undefined) {
-    // Camps with unparsed pricing (priceCents null) drop out here too --
-    // same "exclude rather than guess" rule as everywhere else in this file.
-    conditions.push(gte(sessions.priceCents, filters.budgetMinCents));
-  }
-  if (filters.budgetMaxCents !== undefined) {
-    conditions.push(lte(sessions.priceCents, filters.budgetMaxCents));
+  const budgetActive = filters.budgetMinCents !== undefined || filters.budgetMaxCents !== undefined;
+  if (budgetActive) {
+    // A session with no known price stays in: we can't say it's outside the
+    // budget, so the result is flagged "unconfirmed" below instead of being
+    // dropped. Sessions with a known price must actually fall in the band.
+    const inBand = and(
+      filters.budgetMinCents !== undefined ? gte(sessions.priceCents, filters.budgetMinCents) : undefined,
+      filters.budgetMaxCents !== undefined ? lte(sessions.priceCents, filters.budgetMaxCents) : undefined,
+    );
+    conditions.push(or(isNull(sessions.priceCents), inBand));
   }
 
   if (filters.interests && filters.interests.length > 0) {
@@ -79,12 +82,19 @@ export async function getCamps(filters: CampFilters) {
   // sessions (e.g. separate age-banded programs) must still show up as one
   // result -- keep the first session that survived the filters above, which
   // is what the result card displays; the detail page lists them all.
-  const seenCampIds = new Set<string>();
-  const campRows = rows.filter((r) => {
-    if (seenCampIds.has(r.camp.id)) return false;
-    seenCampIds.add(r.camp.id);
-    return true;
-  });
+  // Exception: when filtering by budget, prefer a session with a confirmed
+  // in-band price over an unpriced one, so a camp with any confirmed match
+  // isn't labeled "unconfirmed" just because an unpriced session came first.
+  const byCamp = new Map<string, (typeof rows)[number]>();
+  for (const r of rows) {
+    const existing = byCamp.get(r.camp.id);
+    if (!existing) {
+      byCamp.set(r.camp.id, r);
+    } else if (budgetActive && existing.session?.priceCents == null && r.session?.priceCents != null) {
+      byCamp.set(r.camp.id, r);
+    }
+  }
+  const campRows = [...byCamp.values()];
 
   const tagsByCamp = await tagsByCampId(campRows.map((r) => r.camp.id));
 
@@ -93,6 +103,9 @@ export async function getCamps(filters: CampFilters) {
     session: r.session,
     interestTags: tagsByCamp.get(r.camp.id) ?? [],
     distanceMiles: null as number | null,
+    // True only when a budget filter is active and no price is known for the
+    // session we're showing -- the card says so instead of implying a match.
+    budgetUnconfirmed: budgetActive && r.session?.priceCents == null,
   }));
 
   const origin = filters.origin ?? (filters.near ? SF_NEIGHBORHOODS[filters.near] : undefined);
