@@ -1,0 +1,37 @@
+[
+  {
+    "name": "SF Dragons Soccer Camp",
+    "source": "https://www.sfdragonssoccercamp.com/ (home, youth-academy-camp, and player-development-academy-camp pages), read 2026-10-07",
+    "format": "in_person",
+    "neighborhood": "Beach Chalet Athletic Fields & South Sunset Athletic Fields",
+    "ageMin": 5,
+    "ageMax": 14,
+    "description": "Youth soccer camp for kindergarten through 8th grade, coached in a Brazilian style that builds technical skill and character. Two programs run side by side each week: a Youth Academy for K-3 players focused on ball mastery, coordination, and small-sided games, and an Advanced Development Academy for competitive players in grades 4-8 with targeted technique work and personalized development plans. Days include skill sessions, possession games and scrimmages, a goalie and finishing clinic, foot tennis, team building or art, and Friday pizza parties with a \"Dragons World Cup Day.\" Led by head coach Willian Lelis, a former Brazilian professional with 20+ years of coaching experience. Weeks are held at Beach Chalet Athletic Fields, except Aug 3-7 at South Sunset Athletic Fields. Scholarships are available through the camp's Thrive Through Play initiative. Cancellations through March 30 get a full refund; after that, a credit toward another camp date.",
+    "website": "https://www.sfdragonssoccercamp.com/",
+    "dropoffPickupInfo": "Check-in at 8:45am, camp runs 9:00am - 4:00pm, pick-up at 4:00pm. Extended care / after care: contact the camp at (415) 350-9779 or sfdragonssoccercamp@gmail.com.",
+    "packingList": "Water bottle, lunch, snacks, and sunscreen. Comfortable athletic clothing. Shoes or cleats (recommended). A light jacket or sweatshirt -- mornings can be cold.",
+    "interests": ["Soccer"],
+    "sessions": [
+      {
+        "level": "Youth Academy (grades K-3)",
+        "ageMin": 5,
+        "ageMax": 9,
+        "startDate": "2026 weeks: Jun 22-26, Jul 20-24, Jul 27-31, Aug 3-7, Aug 10-14",
+        "endDate": null,
+        "hoursText": "9:00am - 4:00pm (check-in 8:45am)",
+        "priceText": "$545/week (includes $28 fee)\nDiscounts for groups of three, siblings, and multiple weeks -- contact the camp for details.",
+        "priceCents": 54500
+      },
+      {
+        "level": "Advanced Development Academy (grades 4-8, competitive players)",
+        "ageMin": 9,
+        "ageMax": 14,
+        "startDate": "2026 weeks: Jun 22-26, Jul 20-24, Jul 27-31, Aug 3-7, Aug 10-14",
+        "endDate": null,
+        "hoursText": "9:00am - 4:00pm (check-in 8:45am)",
+        "priceText": "$545/week (includes $28 fee)\nDiscounts for groups of three, siblings, and multiple weeks -- contact the camp for details.",
+        "priceCents": 54500
+      }
+    ]
+  }
+]

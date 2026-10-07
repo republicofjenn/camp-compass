@@ -12,7 +12,8 @@
     "db:studio": "drizzle-kit studio",
     "db:sql": "node scripts/apply-sql.mjs",
     "db:seed": "tsx scripts/seed.ts",
-    "db:geocode": "tsx scripts/geocode-camps.ts"
+    "db:geocode": "tsx scripts/geocode-camps.ts",
+    "db:add-camps": "tsx scripts/add-camps.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

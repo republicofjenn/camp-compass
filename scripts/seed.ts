@@ -219,6 +219,7 @@ Seed complete:
   price parsed:           ${priceParsedCount}/${camps.length}
   camps with no keyword match (tagged "General Day Camp"): ${taggedZero}/${camps.length}
 `);
+  console.log("Reseeding wipes hand-added camps too -- run `npm run db:add-camps` (and `npm run db:geocode`) to restore them.");
 
   await client.end();
 }

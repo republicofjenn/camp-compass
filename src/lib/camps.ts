@@ -75,9 +75,20 @@ export async function getCamps(filters: CampFilters) {
     .where(conditions.length ? and(...conditions) : undefined)
     .orderBy(asc(camps.name));
 
-  const tagsByCamp = await tagsByCampId(rows.map((r) => r.camp.id));
+  // The join yields one row per (camp, session). A camp with several
+  // sessions (e.g. separate age-banded programs) must still show up as one
+  // result -- keep the first session that survived the filters above, which
+  // is what the result card displays; the detail page lists them all.
+  const seenCampIds = new Set<string>();
+  const campRows = rows.filter((r) => {
+    if (seenCampIds.has(r.camp.id)) return false;
+    seenCampIds.add(r.camp.id);
+    return true;
+  });
 
-  let results = rows.map((r) => ({
+  const tagsByCamp = await tagsByCampId(campRows.map((r) => r.camp.id));
+
+  let results = campRows.map((r) => ({
     ...r.camp,
     session: r.session,
     interestTags: tagsByCamp.get(r.camp.id) ?? [],
