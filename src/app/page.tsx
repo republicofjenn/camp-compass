@@ -264,11 +264,7 @@ export default async function Home(props: PageProps<"/">) {
                     return (
                       <label
                         key={i.id}
-                        className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                          checked
-                            ? "border-emerald bg-emerald text-white"
-                            : "border-border bg-white text-foreground hover:border-emerald"
-                        }`}
+                        className="cursor-pointer rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-emerald has-[:checked]:border-emerald has-[:checked]:bg-emerald has-[:checked]:text-white has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-emerald/40"
                       >
                         <input
                           type="checkbox"
