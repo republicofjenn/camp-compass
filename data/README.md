@@ -19,10 +19,11 @@ permission/attribution, or replace it with camps sourced directly (per the
 ## additional-camps.json
 
 Camps added by hand after the initial seed (currently: SF Dragons Soccer
-Camp), already structured -- multiple sessions per camp, interest names,
+Camp and three Lifetime Activities tennis/pickleball camps), already structured -- multiple sessions per camp, interest names,
 and so on -- with a `source` field recording where the details came from.
 Loaded by `npm run db:add-camps`, which is non-destructive (skips any camp
-whose name already exists) and geocodes via the neighborhood table.
+whose name already exists). Geocodes a camp's street `address` for real when
+it has one (and warns if that fails), else falls back to the neighborhood table.
 
 Reseeding (`npm run db:seed`) wipes every camp, these included -- re-run
 `npm run db:add-camps` and `npm run db:geocode` afterward.

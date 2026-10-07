@@ -10,7 +10,9 @@
     "website": "https://www.sfdragonssoccercamp.com/",
     "dropoffPickupInfo": "Check-in at 8:45am, camp runs 9:00am - 4:00pm, pick-up at 4:00pm. Extended care / after care: contact the camp at (415) 350-9779 or sfdragonssoccercamp@gmail.com.",
     "packingList": "Water bottle, lunch, snacks, and sunscreen. Comfortable athletic clothing. Shoes or cleats (recommended). A light jacket or sweatshirt -- mornings can be cold.",
-    "interests": ["Soccer"],
+    "interests": [
+      "Soccer"
+    ],
     "sessions": [
       {
         "level": "Youth Academy (grades K-3)",
@@ -33,5 +35,101 @@
         "priceCents": 54500
       }
     ]
+  },
+  {
+    "name": "Lifetime Activities Little Tennis & Little Rallyers Camp",
+    "ageMin": 4,
+    "ageMax": 7,
+    "description": "Beginner tennis camp for ages 4-7 at the Goldman Tennis Center in Golden Gate Park. No experience needed: little players learn tennis basics and build coordination through games on mini nets with low-bouncing balls. Two half-day options (Camp A 9:00-10:30am, Camp B 10:30am-12:00pm), about 5 kids per coach. The holiday flyer lists these weeks without saying which program runs which week -- confirm with the center. Registration is online (CourtReserve portal) or in person, not by phone. Withdraw 14+ days before camp for a refund minus a processing fee (3% or $12, whichever is greater); 7-13 days gets account credit only; under 7 days gets nothing. Need-based scholarships are available for SF-resident youth in group tennis programs (goldmantc@lifetimeactivities.com).",
+    "packingList": "Athletic, closed-toe, non-marking shoes (no sandals, flip-flops, Crocs, or slip-ons). Snack and refillable water bottle. Hat and sunscreen. The summer guide asks families to bring an appropriately sized racquet (balls are provided). Please avoid peanut butter and nut products in snacks.",
+    "interests": [
+      "Tennis"
+    ],
+    "sessions": [
+      {
+        "level": "Beginning to advanced beginning",
+        "ageMin": 4,
+        "ageMax": 7,
+        "startDate": "Holiday camps 2026 (3 days, Mon-Wed): Nov 23-25, Dec 21-23, Dec 28-30",
+        "endDate": null,
+        "hoursText": "Camp A 9:00am - 10:30am, or Camp B 10:30am - 12:00pm",
+        "priceText": "3-day holiday camp: $180 SF resident / $198 non-resident\nSummer pricing isn't published online -- check the registration portal.",
+        "priceCents": null
+      }
+    ],
+    "source": "https://www.lifetimeactivities.com/san-francisco/camps/ plus its linked 2026 Summer Camp Parent Guide and Holiday Camps 2026 flyer (PDFs), read 2026-10-07",
+    "format": "in_person",
+    "neighborhood": "Golden Gate Park (Goldman Tennis Center)",
+    "address": "50 Bowling Green Dr, San Francisco, CA",
+    "website": "https://www.lifetimeactivities.com/san-francisco/camps/",
+    "dropoffPickupInfo": "Check-in and check-out are by the windows near Court 6 (the stadium court); check-in opens 15 minutes before camp starts. A parent or authorized adult must pick up. Kids under 10 can't check themselves out; ages 10-15 need a signed self-checkout form on file. Late pick-up fees: $25, $25, then $75. Questions: (415) 581-2540 or GoldmanTC@LifetimeActivities.com."
+  },
+  {
+    "name": "Lifetime Activities Junior Tennis Camps (Improvement & Matchplay)",
+    "ageMin": 7,
+    "ageMax": 15,
+    "description": "Half-day tennis camps for ages 7-15 at the Goldman Tennis Center in Golden Gate Park. Youth Improvement is for beginner to intermediate players (no experience required): kids are evaluated on day one and grouped by age and ability for drills, games, and point play. Junior Matchplay is for intermediate to advanced players who can rally, serve, and play a basic match, with fast-paced drills and match play. Registration is online (CourtReserve portal) or in person, not by phone. Withdraw 14+ days before camp for a refund minus a processing fee (3% or $12, whichever is greater); 7-13 days gets account credit only; under 7 days gets nothing. Need-based scholarships are available for SF-resident youth in group tennis programs (goldmantc@lifetimeactivities.com).",
+    "packingList": "Athletic, closed-toe, non-marking shoes (no sandals, flip-flops, Crocs, or slip-ons). A tennis racquet in an appropriate size (balls are provided). Snack and refillable water bottle for the mid-camp break. Hat and sunscreen. Please avoid peanut butter and nut products.",
+    "interests": [
+      "Tennis"
+    ],
+    "sessions": [
+      {
+        "level": "Youth Improvement (beginner to intermediate, no experience needed)",
+        "ageMin": 7,
+        "ageMax": 15,
+        "startDate": "Dates not published online",
+        "endDate": null,
+        "hoursText": "AM 9:00am - 12:00pm, or PM 12:30pm - 3:30pm",
+        "priceText": "Price not published online. Check the CourtReserve registration portal or call (415) 581-2540.",
+        "priceCents": null
+      },
+      {
+        "level": "Junior Matchplay (intermediate to advanced; must be able to rally, serve, and play a basic match)",
+        "ageMin": 7,
+        "ageMax": 15,
+        "startDate": "Dates not published online",
+        "endDate": null,
+        "hoursText": "12:30pm - 3:30pm",
+        "priceText": "Price not published online. Check the CourtReserve registration portal or call (415) 581-2540.",
+        "priceCents": null
+      }
+    ],
+    "source": "https://www.lifetimeactivities.com/san-francisco/camps/ plus its linked 2026 Summer Camp Parent Guide and Holiday Camps 2026 flyer (PDFs), read 2026-10-07",
+    "format": "in_person",
+    "neighborhood": "Golden Gate Park (Goldman Tennis Center)",
+    "address": "50 Bowling Green Dr, San Francisco, CA",
+    "website": "https://www.lifetimeactivities.com/san-francisco/camps/",
+    "dropoffPickupInfo": "Check-in and check-out are by the windows near Court 6 (the stadium court); check-in opens 15 minutes before camp starts. A parent or authorized adult must pick up. Kids under 10 can't check themselves out; ages 10-15 need a signed self-checkout form on file. Late pick-up fees: $25, $25, then $75. Questions: (415) 581-2540 or GoldmanTC@LifetimeActivities.com."
+  },
+  {
+    "name": "Lifetime Activities All-Day Tennis & Activities Camp",
+    "ageMin": 8,
+    "ageMax": 15,
+    "description": "Full-day camp for ages 8-15, all levels welcome, at the Goldman Tennis Center in Golden Gate Park: tennis instruction 9am-noon, a supervised lunch, then 1-4pm rotations of chess, table tennis, pickleball, and more tennis. Wednesday is Character Day -- campers can dress as a favorite character. About 8 kids per coach at the holiday camps. The holiday flyer lists these weeks without saying which program runs which week -- confirm with the center. Registration is online (CourtReserve portal) or in person, not by phone. Withdraw 14+ days before camp for a refund minus a processing fee (3% or $12, whichever is greater); 7-13 days gets account credit only; under 7 days gets nothing. Need-based scholarships are available for SF-resident youth in group tennis programs (goldmantc@lifetimeactivities.com).",
+    "packingList": "Lunch (campers bring their own) plus snacks and a refillable water bottle. Athletic, closed-toe, non-marking shoes (no sandals, flip-flops, Crocs, or slip-ons). Tennis racquet (balls provided) and a pickleball paddle -- loaner paddles are available in limited numbers. Hat and sunscreen. Please avoid peanut butter and nut products.",
+    "interests": [
+      "Tennis",
+      "Pickleball",
+      "Chess / Games"
+    ],
+    "sessions": [
+      {
+        "level": "All levels",
+        "ageMin": 8,
+        "ageMax": 15,
+        "startDate": "Holiday camps 2026 (3 days, Mon-Wed): Nov 23-25, Dec 21-23, Dec 28-30",
+        "endDate": null,
+        "hoursText": "9:00am - 4:00pm (supervised lunch 12-1pm)",
+        "priceText": "3-day holiday camp: $378 SF resident / $414 non-resident\nSummer pricing isn't published online -- check the registration portal.",
+        "priceCents": null
+      }
+    ],
+    "source": "https://www.lifetimeactivities.com/san-francisco/camps/ plus its linked 2026 Summer Camp Parent Guide and Holiday Camps 2026 flyer (PDFs), read 2026-10-07",
+    "format": "in_person",
+    "neighborhood": "Golden Gate Park (Goldman Tennis Center)",
+    "address": "50 Bowling Green Dr, San Francisco, CA",
+    "website": "https://www.lifetimeactivities.com/san-francisco/camps/",
+    "dropoffPickupInfo": "Check-in and check-out are by the windows near Court 6 (the stadium court); check-in opens 15 minutes before camp starts. A parent or authorized adult must pick up. Kids under 10 can't check themselves out; ages 10-15 need a signed self-checkout form on file. Late pick-up fees: $25, $25, then $75. Questions: (415) 581-2540 or GoldmanTC@LifetimeActivities.com."
   }
 ]

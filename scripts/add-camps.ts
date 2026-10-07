@@ -4,7 +4,9 @@
 // already exists is skipped, so re-running is safe and favorites pointing
 // at existing camps/sessions are never cascade-deleted.
 //
-// Geocoding uses the same neighborhood table as scripts/geocode-camps.ts.
+// Geocoding: if a camp has a street `address`, it's geocoded for real via
+// Nominatim (src/lib/geocode.ts); otherwise falls back to the neighborhood
+// centroid table, same as scripts/geocode-camps.ts.
 // Note: seed.ts truncates all camps, so after any reseed, re-run this
 // (npm run db:add-camps) to restore the hand-added ones.
 
@@ -17,6 +19,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { eq, inArray } from "drizzle-orm";
 import * as schema from "../src/db/schema";
 import { matchSfNeighborhood } from "../src/data/sf-neighborhoods";
+import { geocodeAddress } from "../src/lib/geocode";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 config({ path: join(root, ".env.local") });
@@ -29,6 +32,7 @@ type AdditionalCamp = {
   source?: string;
   format: "in_person" | "remote" | "both";
   neighborhood: string | null;
+  address?: string | null;
   ageMin: number | null;
   ageMax: number | null;
   description: string | null;
@@ -53,6 +57,8 @@ async function main() {
     readFileSync(join(root, "data/additional-camps.json"), "utf-8"),
   );
 
+  const geocodeCache = new Map<string, { lat: number; lng: number } | null>();
+
   for (const c of camps) {
     const [existing] = await db.select({ id: schema.camps.id }).from(schema.camps).where(eq(schema.camps.name, c.name));
     if (existing) {
@@ -66,7 +72,18 @@ async function main() {
     const missing = c.interests.filter((n) => !interestRows.some((r) => r.name === n));
     if (missing.length) throw new Error(`"${c.name}": unknown interest(s): ${missing.join(", ")}`);
 
-    const coords = c.neighborhood ? matchSfNeighborhood(c.neighborhood) : null;
+    let coords: { lat: number; lng: number } | null = null;
+    if (c.address) {
+      if (!geocodeCache.has(c.address)) {
+        geocodeCache.set(c.address, await geocodeAddress(c.address));
+        await new Promise((r) => setTimeout(r, 1100)); // Nominatim: max ~1 request/sec
+      }
+      coords = geocodeCache.get(c.address) ?? null;
+    }
+    if (c.address && !coords) {
+      console.warn(`WARNING: couldn't geocode "${c.address}" for "${c.name}" -- falling back to the neighborhood centroid (less precise).`);
+    }
+    if (!coords && c.neighborhood) coords = matchSfNeighborhood(c.neighborhood);
 
     const [camp] = await db
       .insert(schema.camps)
@@ -74,6 +91,7 @@ async function main() {
         name: c.name,
         format: c.format,
         neighborhood: c.neighborhood,
+        address: c.address ?? null,
         lat: coords?.lat ?? null,
         lng: coords?.lng ?? null,
         ageMin: c.ageMin,
