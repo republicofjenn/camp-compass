@@ -127,6 +127,10 @@ export default async function Home(props: PageProps<"/">) {
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-8 sm:px-10">
         <form
+          // Inputs are uncontrolled (defaultValue/defaultChecked), which React
+          // only applies on mount -- without a key tied to the URL, navigating
+          // to "/" via "Clear filters" leaves the old selections in place.
+          key={JSON.stringify(sp)}
           method="get"
           className="mb-8 flex flex-col gap-5 rounded-xl border border-border bg-surface p-5 shadow-sm"
         >
